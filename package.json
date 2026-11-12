@@ -1,0 +1,22 @@
+{
+  "name": "securite-applicative-session-1",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sécurité applicative avancée, session 1 : exercices",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "jest": "^30.0.0",
+    "supertest": "^7.1.0"
+  }
+}
