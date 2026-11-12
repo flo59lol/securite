@@ -129,7 +129,11 @@ app.delete(
 );
 
 app.get('/tasks/:id', authentifier, (req, res) => {
-  const task = tasks.find((t) => t.id === Number(req.params.id));
+  const task = tasks.find(
+    (t) =>
+      t.id === Number(req.params.id) &&
+      (req.user.role === 'admin' || t.ownerId === req.user.id)
+  );
   if (!task) {
     return res.status(404).json({ error: 'Tâche introuvable' });
   }
@@ -137,7 +141,11 @@ app.get('/tasks/:id', authentifier, (req, res) => {
 });
 
 app.put('/tasks/:id', authentifier, (req, res) => {
-  const task = tasks.find((t) => t.id === Number(req.params.id));
+  const task = tasks.find(
+    (t) =>
+      t.id === Number(req.params.id) &&
+      (req.user.role === 'admin' || t.ownerId === req.user.id)
+  );
   if (!task) {
     return res.status(404).json({ error: 'Tâche introuvable' });
   }
