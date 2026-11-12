@@ -1,4 +1,4 @@
-# Sécurité applicative avancée : session 1
+# Cours Sécurité : session 1
 
 Quatre exercices sur une même API de tâches, écrite avec Express et
 gardée en mémoire : hachage des mots de passe, jeton JWT, rôles, accès
