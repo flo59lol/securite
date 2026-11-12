@@ -65,6 +65,15 @@ function authentifier(req, res, next) {
   }
 }
 
+function exigerRole(role) {
+  return (req, res, next) => {
+    if (req.user.role !== role) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+    next();
+  };
+}
+
 app.post('/login', async (req, res) => {
   const { email, password } = req.body || {};
   const user = users.find((u) => u.email === email);
@@ -86,12 +95,18 @@ app.get('/tasks', authentifier, (req, res) => {
 });
 
 // Réservé à l'admin : la liste des comptes
-app.get('/admin/users', authentifier, (req, res) => {
-  res.json(users);
+app.get('/admin/users', authentifier, exigerRole('admin'), (_req, res) => {
+  res.json(
+    users.map((user) => ({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    }))
+  );
 });
 
 // Réservé à l'admin : supprimer une tâche
-app.delete('/tasks/:id', authentifier, (req, res) => {
+app.delete('/tasks/:id', authentifier, exigerRole('admin'), (req, res) => {
   const index = tasks.findIndex((t) => t.id === Number(req.params.id));
   if (index === -1) {
     return res.status(404).json({ error: 'Tâche introuvable' });
