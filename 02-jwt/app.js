@@ -8,7 +8,31 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'cle-de-dev-ilaria-a-ne-pas-garder';
 
 const app = express();
+
 app.use(express.json());
+
+function authentifier(req, res, next) {
+  const entete = req.headers.authorization || '';
+  const [type, token] = entete.split(' ');
+  if (type !== 'Bearer' || !token) {
+    return res.status(401).json({ error: 'Jeton manquant' });
+  }
+
+  let payload;
+  try {
+    payload = jwt.verify(token, JWT_SECRET, {
+      algorithms: ['HS256'],
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ error: 'Jeton invalide' });
+    }
+    return next(error);
+  }
+
+  req.user = { id: Number(payload.sub), role: payload.role };
+  next();
+}
 
 // Comptes pré-enregistrés (password contient le hash bcrypt)
 const users = [
@@ -52,11 +76,16 @@ app.post('/login', async (req, res) => {
   if (!ok) {
     return res.status(401).json({ error: 'Identifiants invalides' });
   }
-  res.json({ message: 'Connecté' });
+  const token = jwt.sign(
+    { sub: String(user.id), role: user.role },
+    JWT_SECRET,
+    { algorithm: 'HS256', expiresIn: '15m' }
+  );
+  res.json({ token });
 });
 
-app.get('/tasks', (req, res) => {
-  res.json(tasks);
+app.get('/tasks', authentifier, (req, res) => {
+  res.json(tasks.filter((task) => task.ownerId === req.user.id));
 });
 
 module.exports = { app, users, tasks, JWT_SECRET };
